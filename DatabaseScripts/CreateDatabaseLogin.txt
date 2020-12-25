@@ -1,0 +1,8 @@
+CREATE LOGIN [{0}] FROM WINDOWS
+
+
+USE {1}
+CREATE USER [{0}] FOR LOGIN [{0}]
+EXEC sp_addrolemember 'db_datareader', '{0}'
+EXEC sp_addrolemember 'db_datawriter', '{0}'
+Grant Execute on Schema :: dbo TO [{0}]
