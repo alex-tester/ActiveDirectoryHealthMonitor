@@ -252,7 +252,7 @@ foreach ($d in $ADForest.Domains)
         {
             $currDcDiagResults = & dcdiag.exe "/s:$DcName" "/c"
         }
-        #$currDnsResults = & dcdiag.exe "/s:$DcName" "/u:observicing\doo" "/p:M3owth12" "/test:dns"
+
         $DcDiagResults.$DcName = $currDcDiagResults
 
 
@@ -499,49 +499,3 @@ foreach ($d in $ADForest.Domains)
 
 
 
-<#
-
-
-$DcDiagHT = @{}
-
-
-
-foreach ($s in $TargetDomainControllers)
-{
-$DcDiagResults.$s = dcdiag /s:$s /u:observicing\doo /p:M3owth12 /c
-
-}
-
-
-$TestResultRegex = "(?<=\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\s)(.*)(?=)"
-$TestResultAnalysisRegex = "(?<=)(.*?)(?=\s)"
-$TestNameRegex = "(?<=test\s)(.*?)$"
-foreach ($s in $TargetDomainControllers)
-{
-    #$DcDiagObj | Add-Member -MemberType PropertySet -Name $s -Value $null
-    #$DcDiagHT.$s = @{}
-    #$DcDiagObj.$s = @()
-    foreach ($i in $DcDiagResults.$s)
-    {
-    $IsTestResult = $i -match $TestResultRegex
-        if ($IsTestResult)
-        {
-    
-        $TestResult = $Matches[0]
-        $SplitTestResult = $TestResult.Split(" ")
-            if ($SplitTestResult.count -eq 4)
-            {
-                $TestResultHT = @{
-                Server = $s
-                TestItem = $SplitTestResult[0]
-                TestPassed = $SplitTestResult[1] -eq "passed"
-                TestName = $SplitTestResult[3]
-                }
-                $DcDiagObj += $TestResultHT
-            }
-
-        }
-
-    }
-}
-#>
