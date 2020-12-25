@@ -1,33 +1,18 @@
-﻿start-sleep -Seconds 120
+﻿#Requires -Modules ActiveDirectory
+#Requires -Modules SqlServer
+#Requires -Modules Write-ObjectToSQL
+#Requires -Version 3.0
 
-if ($psISE) { $calculatedScriptPath = Split-Path $psISE.CurrentFile.FullPath }
+if ($psISE) { $calculatedScriptPath = Split-Path $psISE.CurrentFile.FullPath } #ISE
 elseif ($PSVersionTable.PSVersion.Major -ge 3) { $calculatedScriptPath = $PSScriptRoot } #v3+
 else { $calculatedScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition } #v2
 
-function checkIfPSModuleIsInstalled
-{
-    param(
-    $moduleName 
-    )
-    $moduleExists = Get-Module -ListAvailable $ModuleName
 
-    if (-not $moduleExists)
-    {
-        New-EventLog -LogName Application -Source ActiveDirectory-HealthMonitor -ErrorAction SilentlyContinue #won't create a new instance if already exist
-        $failureMessage = "Unable to locate $moduleName PowerShell Module"
-        Write-EventLog -LogName Application -Source ActiveDirectory-HealthMonitor -EntryType Error -EventId 1 -Message $failureMessage
-        Write-Host -ForegroundColor Red -BackgroundColor Black $failureMessage
-        throw($failureMessage)
-    }
-}
-
-checkIfPSModuleIsInstalled ActiveDirectory
-checkIfPSModuleIsInstalled SqlServer
-checkIfPSModuleIsInstalled write-objecttosql
 
 $appSettings = Get-Content $calculatedScriptPath\appsettings.json | ConvertFrom-Json
 
-$appSettings.DatabaseSettings
+$secondsBetweenExecution = $appSettings.AppSettings.SecondsBetweenExecution
+#$appSettings.DatabaseSettings
 
 $databaseServer = $appSettings.DatabaseSettings.DatabaseServer
 $databaseName = $appSettings.DatabaseSettings.DatabaseName
@@ -490,8 +475,9 @@ foreach ($d in $ADForest.Domains)
     }
 
 }
-#}
 
+
+Start-Sleep -Seconds $secondsBetweenExecution
 
 
 
